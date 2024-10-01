@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Аутентификация | kioreviews</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; padding: 20px; background-color: #f8f9fa; }
+        .container { width: 90%; max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); }
+        #output, #loading-indicator { margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 5px; min-height: 100px; white-space: pre-wrap; display: none; }
+        input, button, select { width: 100%; padding: 10px; margin-top: 10px; }
+        button { background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Добро пожаловать</h1>
+    <input type="text" id="login" placeholder="Имя пользователя">
+    <input type="password" id="pass" placeholder="Пароль">
+    <button onclick="dataAuth()">Войти</button>
+    <a href="createAccount.html">Ещё не зарегистрированы?</a>
+    <div id="loading-indicator">Идет обработка...</div>
+    <div id="output">Результаты будут отображены здесь...</div>
+</div>
+
+<script>
+    fetch('http://localhost:3000/result_to_connect_db')
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+    })
+
+    async function dataAuth() {
+        const login_ = document.getElementById('login').value;
+        const pass_ = document.getElementById('pass').value;
+        console.log(login_, pass_);
+        await fetch('http://localhost:3000/auth', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                login: login_,
+                password: pass_
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            // alert(`${data.error}, ${data.success}, ${data.login}, ${data.password}`);
+            if (data.success) {
+                window.location.href = 'index.html';
+            }
+            else {
+                alert(`${data.message}, ${data.error}`);
+            }
+        })
+        .catch(error => {
+            alert('Error: ', error);
+        });
+    }
+
+
+    // function processDocument() {
+    //     const docType = document.getElementById('docType').value;
+    //     const fileInput = document.getElementById('fileInput');
+    //     const file = fileInput.files[0];
+    //     if (!file) {
+    //         alert("Пожалуйста, выберите файл для обработки.");
+    //         return;
+    //     }
+
+    //     showLoading();
+
+    //     if (file.type === "application/pdf") {
+    //         processPDF(file, docType);
+    //     } else {
+    //         document.getElementById('output').innerText = "Unsupported file type";
+    //         hideLoading();
+    //     }
+    // }
+
+    // function showLoading() {
+    //     document.getElementById('loading-indicator').style.display = 'block';
+    //     document.getElementById('output').style.display = 'none';
+    // }
+
+    // function hideLoading() {
+    //     document.getElementById('loading-indicator').style.display = 'none';
+    //     document.getElementById('output').style.display = 'block';
+    // }
+
+    // function sendTextToServer(text, docType) {
+    //     const formData = new URLSearchParams();
+    //     text.forEach((item, index) => {
+    //         formData.append(`items[${index}]`, item);
+    //     });
+    //     fetch('processDocument.php', {
+    //         method: 'POST',
+    //         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    //         body: `${formData.toString()}&docType=${docType}`
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         document.getElementById('output').innerText = data.message;
+    //         hideLoading();
+    //     })
+    //     .catch(error => {
+    //         console.error('Error:', error);
+    //         document.getElementById('output').innerText = 'Ошибка сервера. Подробности в консоли.';
+    //         hideLoading();
+    //     });
+    // }
+
+    // function processPDF(file, docType) {
+    //     const fileReader = new FileReader();
+    //     fileReader.onload = function() {
+    //         const typedarray = new Uint8Array(this.result);
+    //         pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+    //             pdf.getPage(1).then(function(page) {
+    //                 page.getTextContent().then(function(textContent) {
+    //                     console.log(textContent.items.map(item => item.str), docType)
+    //                     sendTextToServer(textContent.items.map(item => item.str), docType);
+    //                 });
+    //             });
+    //         });
+    //     };
+    //     fileReader.readAsArrayBuffer(file);
+    // }
+</script>
+</body>
+</html>

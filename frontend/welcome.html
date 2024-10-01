@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppWeb</title>
+</head>
+<body>
+    <h1>Ответ от сервера:</h1>
+    <div id="result"></div>
+</body>
+<script>
+    Promise.all([
+        fetch('http://192.168.31.245:3000/result_to_connect_db').then(response => response.json()),
+        fetch('http://192.168.31.245:3000/').then(response => response.json())
+    ])
+    .then(([data1, data2]) => {
+        const outputElement1 = document.getElementById('result');
+        outputElement1.innerHTML = `
+            <h1>${data1.message}</h1>
+        `;
+        const outputElement2 = document.getElementById('result');
+        outputElement2.innerHTML += `
+            <p>${data2.message}</p>
+        `;
+    })
+    .catch(error => {
+        console.log('Error: ', error);
+    });
+</script>
+</html>
