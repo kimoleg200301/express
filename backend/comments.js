@@ -32,7 +32,7 @@ const con = mysql.createConnection({
   user: 'root',
   password: '',
   database: 'app',
-});
+}); //ffffff
 
 // con.connect((err) => {  
 //   if (err) { //'Ошибка поключения к базе данных: ', err.stack
