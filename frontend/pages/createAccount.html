@@ -15,9 +15,9 @@
 <body>
 <div class="container">
     <h1>Создать аккаунт</h1>
-    <input type="text" id="login" placeholder="Имя пользователя">
-    <input type="text" id="pass" placeholder="Новый пароль">
-    <input type="text" id="pass" placeholder="Повторите пароль">
+    <input type="text" id="name" placeholder="Имя пользователя">
+    <input type="password" id="pass" placeholder="Новый пароль">
+    <input type="password" id="pass_" placeholder="Повторите пароль">
     <button onclick="dataAuth()">Создать аккаунт</button>
     <a href="welcome.html">На главную</a>
     <div id="loading-indicator">Идет обработка...</div>
@@ -26,19 +26,34 @@
 
 <script>
     function dataAuth() {
-        const login_ = document.getElementById('login');
-        const pass_ = document.getElementById('pass');
-        fetch('http://localhost:3000/auth', {
+        const name = document.getElementById('name').value;
+        const pass = document.getElementById('pass').value;
+        const pass_ = document.getElementById('pass_').value;
+        fetch('http://localhost:3000/create_account', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                login: login_,
-                password: pass_
+                login: name,
+                password: pass,
+                password_: pass_ 
             })
         })
-        .then()
+        .then(res => res.json())
+        .then(data => {
+            if (data.result == true) {
+                alert(data.message);
+                window.location.href = 'welcome.html';
+            }
+            else {
+                alert(data.message);
+                return;
+            }
+        })
+        .catch(error => {
+            alert(`Error: ${error}`);
+        })
     }
 
 

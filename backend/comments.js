@@ -27,13 +27,6 @@ function authenticateToken(req, res, next) {
 
 }
 
-const con = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'app',
-});
-
 // con.connect((err) => {  
 //   if (err) { //'Ошибка поключения к базе данных: ', err.stack
 //     console.error(
@@ -62,82 +55,134 @@ const con = mysql.createConnection({
 //   response.json(data);
 // }); 
 
-app.get('/', authenticateToken, function(req, res) {
+// app.get('/', authenticateToken, function(req, res) {
 
-});
+// });
 
-app.post('/auth', async (req, res) => {
-  const { login, password } = req.body;
-  //const query_password = `select password from users where password = '${password}'`;
-
-  // con.query(query_login, (error, result) => {
-  //   if (error) return res.status(500).json({ error: 'Произошла ошибка.' });
-  //   if (result.length > 0) {
-  //     console.log(`Login: ${result}`);
-  //   }
-  // })
-  const [data] = await con.query(`select * from users where name = '${login}'`);
-  if (data.length > 0) {
-    if (data.password === password) {
-      res.json({
-        success: `Поздравляем! Вы успешно авторизованы!`,
-        login: `Ваш логин: ${login}`,
-        password: `Ваш пароль: ${password}`
-      });
-      // начало генерации токена
-      const token = jwt.sign({name: data.name}, 'mother');
-      
-      if (req.headers['user-agent'].includes('Mozilla')) {
-        res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Strict' });
+async function getUser() {
+  try {
+    const con = await mysql.createConnection({
+      host: 'localhost',
+      user: 'root',
+      password: '',
+      database: 'app',
+    });
+    app.post('/auth', async (req, res) => {
+      const { login, password } = req.body;
+      //const query_password = `select password from users where password = '${password}'`;
+    
+      // con.query(query_login, (error, result) => {
+      //   if (error) return res.status(500).json({ error: 'Произошла ошибка.' });
+      //   if (result.length > 0) {
+      //     console.log(`Login: ${result}`);
+      //   }
+      // })
+      const [data] = await con.query(`select * from users where name = ?`, [login]);
+      if (data.length > 0) {
+        if (data[0].password === password) {
+          res.json({
+            success: `Поздравляем! Вы успешно авторизованы!`,
+            login: `Ваш логин: ${login}`,
+            password: `Ваш пароль: ${password}`
+          });
+          // начало генерации токена
+          const token = jwt.sign({name: data[0].name}, 'mother');
+          
+          if (req.headers['user-agent'].includes('Mozilla')) {
+            res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Strict' });
+          }
+          else {
+            res.json({token});
+          }
+        }
+        else {
+          res.json({
+            error: `Неверный пароль!`
+          });
+        }
       }
       else {
-        res.json({token});
+        res.json({
+          error: `Имя не найдено!`
+        });
       }
-    }
-  }
-  else {
-    res.json({
-      error: `Имя не найдено!`
+    
+      // con.query(query_data, (error, result) => {
+      //   if (error) throw error;
+      //   if (result.length > 0) {
+      //     con.query(query_password, async (error, result) => {
+      //       if (error) throw error;
+      //       if (result.length > 0) {
+      //         const [data_user] = await con.execute('select * from users where name = ?', [login]);
+    
+      //         res.json({
+      //           success: `Поздравляем! Вы успешно авторизованы!`,
+      //           login: `Ваш логин: ${login}`,
+      //           password: `Ваш пароль: ${password}`
+      //         });
+      //         // начало генерации токена
+      //         const token = jwt.sign({name: data_user.name}, 'mother');
+              
+      //         if (req.headers['user-agent'].includes('Mozilla')) {
+      //           res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Strict' });
+      //         }
+      //         else {
+      //           res.json({token});
+      //         }
+      //       }
+      //       else {
+      //         res.json({
+      //           error: `Неверный пароль!`
+      //         });
+      //       }
+      //     });
+      //   }
+      //   else {
+      //     res.json({
+      //       error: `Введенное имя не найдено!`
+      //     });
+      //   }
+      // });
     });
+  } catch (error) {
+    console.error('Ошибка при подключении к базе данных!', error);
+    throw error;
   }
+}
 
-  // con.query(query_data, (error, result) => {
-  //   if (error) throw error;
-  //   if (result.length > 0) {
-  //     con.query(query_password, async (error, result) => {
-  //       if (error) throw error;
-  //       if (result.length > 0) {
-  //         const [data_user] = await con.execute('select * from users where name = ?', [login]);
+async function addUser() {
+  try {
+    const con = await mysql.createConnection({
+      host: 'localhost',
+      user: 'root',
+      password: '',
+      database: 'app',
+    });
+    app.post('/create_account', async (req, res) => {
+      const { login, password, password_ } = req.body;
+      const [data_check] = await con.query(`select name from users where name = ?`, [login])
 
-  //         res.json({
-  //           success: `Поздравляем! Вы успешно авторизованы!`,
-  //           login: `Ваш логин: ${login}`,
-  //           password: `Ваш пароль: ${password}`
-  //         });
-  //         // начало генерации токена
-  //         const token = jwt.sign({name: data_user.name}, 'mother');
-          
-  //         if (req.headers['user-agent'].includes('Mozilla')) {
-  //           res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Strict' });
-  //         }
-  //         else {
-  //           res.json({token});
-  //         }
-  //       }
-  //       else {
-  //         res.json({
-  //           error: `Неверный пароль!`
-  //         });
-  //       }
-  //     });
-  //   }
-  //   else {
-  //     res.json({
-  //       error: `Введенное имя не найдено!`
-  //     });
-  //   }
-  // });
-}); 
+      if (password === password_ || data_check[0] !== login) {
+        const [data] = await con.query(`insert into users (name, password) values (?, ?)`, [login, password]);
+        res.json({
+          result: true,
+          message: `Аккаунт создан. Авторизуйтесь под новым аккаунтом! ${data[0]}`,
+        });
+      }
+      else {
+        res.json({
+          message: 'Пароли не совпали, либо имя пользователя уже имеется',
+        })
+      }
+    }); 
+  } catch (error) {
+    console.error('Ошибка при подключении к базе данных!', error);
+    throw error;
+  }
+}
+
+getUser();
+addUser();
 
 app.listen(port);
 

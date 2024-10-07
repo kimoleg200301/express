@@ -47,8 +47,11 @@
         .then(res => res.json())
         .then(data => {
             // alert(`${data.error}, ${data.success}, ${data.login}, ${data.password}`);
+            if (data.data_query) {
+                console.log(data.data_query);
+            }
             if (data.success) {
-                window.location.href = 'index.html';
+                window.location.href = 'main/index.html';
             }
             else {
                 alert(`${data.message}, ${data.error}`);
