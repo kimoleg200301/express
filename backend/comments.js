@@ -148,7 +148,7 @@ async function getUser() {
     console.error('Ошибка при подключении к базе данных!', error);
     throw error;
   }
-}
+} 
 
 async function addUser() {
   try {
