@@ -10,6 +10,16 @@ const ip = '192.168.31.245';
 app.use(cors());
 app.use(express.json());
 
+const pool = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'app',
+  waitForConnections: true,
+  connectionLimit: 20,
+  queueLimit: 0
+});
+
 function authenticateToken(req, res, next) {
   const token = req.cookies.jwt_token || req.headers('Authorization');
 
@@ -61,12 +71,6 @@ function authenticateToken(req, res, next) {
 
 async function getUser() {
   try {
-    const con = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: '',
-      database: 'app',
-    });
     app.post('/auth', async (req, res) => {
       const { login, password } = req.body;
       //const query_password = `select password from users where password = '${password}'`;
@@ -77,7 +81,7 @@ async function getUser() {
       //     console.log(`Login: ${result}`);
       //   }
       // })
-      const [data] = await con.query(`select * from users where name = ?`, [login]);
+      const [data] = await pool.query(`select * from users where name = ?`, [login]);
       if (data.length > 0) {
         if (data[0].password === password) {
           res.json({
@@ -87,7 +91,7 @@ async function getUser() {
           });
           // начало генерации токена
 
-          const token = jwt.sign({name: data[0].name}, 'mother');
+          const token = jwt.sign({name: data[0].name}, 'mother', { expiresIn: '1h' });
           
           if (req.headers['user-agent'].includes('Mozilla')) {
             res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Strict' });
@@ -154,18 +158,12 @@ async function getUser() {
 
 async function addUser() {
   try {
-    const con = await mysql.createConnection({
-      host: 'localhost',
-      user: 'root',
-      password: '',
-      database: 'app',
-    });
     app.post('/create_account', async (req, res) => {
       const { login, password, password_ } = req.body;
-      const [data_check] = await con.query(`select name from users where name = ?`, [login])
+      const [data_check] = await pool.query(`select name from users where name = ?`, [login])
 
       if (password === password_ || data_check[0] !== login) {
-        const [data] = await con.query(`insert into users (name, password) values (?, ?)`, [login, password]);
+        const [data] = await pool.query(`insert into users (name, password) values (?, ?)`, [login, password]);
         res.json({
           result: true,
           message: `Аккаунт создан. Авторизуйтесь под новым аккаунтом! ${data[0]}`,
