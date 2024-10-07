@@ -55,9 +55,9 @@ function authenticateToken(req, res, next) {
 //   response.json(data);
 // }); 
 
-app.get('/', authenticateToken, function(req, res) {
+// app.get('/', authenticateToken, function(req, res) {
 
-});
+// });
 
 async function getUser() {
   try {
@@ -86,7 +86,8 @@ async function getUser() {
             password: `Ваш пароль: ${password}`
           });
           // начало генерации токена
-          const token = jwt.sign({name: data[0  ].name}, 'mother');
+
+          const token = jwt.sign({name: data[0].name}, 'mother');
           
           if (req.headers['user-agent'].includes('Mozilla')) {
             res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Strict' });
@@ -148,9 +149,42 @@ async function getUser() {
     console.error('Ошибка при подключении к базе данных!', error);
     throw error;
   }
+
+} 
+
+async function addUser() {
+  try {
+    const con = await mysql.createConnection({
+      host: 'localhost',
+      user: 'root',
+      password: '',
+      database: 'app',
+    });
+    app.post('/create_account', async (req, res) => {
+      const { login, password, password_ } = req.body;
+      const [data_check] = await con.query(`select name from users where name = ?`, [login])
+
+      if (password === password_ || data_check[0] !== login) {
+        const [data] = await con.query(`insert into users (name, password) values (?, ?)`, [login, password]);
+        res.json({
+          result: true,
+          message: `Аккаунт создан. Авторизуйтесь под новым аккаунтом! ${data[0]}`,
+        });
+      }
+      else {
+        res.json({
+          message: 'Пароли не совпали, либо имя пользователя уже имеется',
+        })
+      }
+    }); 
+  } catch (error) {
+    console.error('Ошибка при подключении к базе данных!', error);
+    throw error;
+  }
 }
 
 getUser();
+addUser();
 
 app.listen(port);
 
