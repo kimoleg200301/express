@@ -86,6 +86,7 @@ async function getUser() {
             password: `Ваш пароль: ${password}`
           });
           // начало генерации токена
+
           const token = jwt.sign({name: data[0].name}, 'mother');
           
           if (req.headers['user-agent'].includes('Mozilla')) {
@@ -148,6 +149,7 @@ async function getUser() {
     console.error('Ошибка при подключении к базе данных!', error);
     throw error;
   }
+
 } 
 
 async function addUser() {
