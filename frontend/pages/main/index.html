@@ -14,13 +14,17 @@
 </head>
 <body>
 <div class="container">
-    <h1>Название</h1>
-    <p>Картинка</p>
-    <p>Рейтинг</p>
+    <h3 id="name"></h3>
+    <p id="image"></p>
+    <p id="rating"></p>
     <button onclick="content()">Перейти</button>
 </div>
 <script>
-    const token = 'jwt_token';
+    const name_ = document.getElementById('name');
+    const image_ = document.getElementById('image');
+    const rating_ = document.getElementById('rating');
+
+    /*const token = 'jwt_token';
     await fetch('http://localhost:3000/auth', {
         method: 'GET',
         headers: {
@@ -28,7 +32,19 @@
             'Content-Type': 'application/json'
         }
     })
-    .then(res => res.json())
     .then(data => alert(data.message))
-    .catch(error => alert('Ошибка со стороны клиента'));
+    .catch(error => alert('Ошибка со стороны клиента'));*/
+    fetch('http://localhost:3000/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        name_.textContent = data.name;
+        image_.textContent = data.link_to_image;
+        rating_.textContent = data.rating;
+
+    })
 </script>
