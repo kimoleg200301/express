@@ -81,6 +81,7 @@ async function getUser() {
       //     console.log(`Login: ${result}`);
       //   }
       // })
+      
       const [data] = await pool.query(`select * from users where name = ?`, [login]);
       if (data.length > 0) {
         if (data[0].password === password) {
@@ -92,7 +93,6 @@ async function getUser() {
           // начало генерации токена
 
           const token = jwt.sign({name: data[0].name}, 'mother', { expiresIn: '1h' });
-          
           if (req.headers['user-agent'].includes('Mozilla')) {
             res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Strict' });
           }
@@ -153,8 +153,7 @@ async function getUser() {
     console.error('Ошибка при подключении к базе данных!', error);
     throw error;
   }
-
-} 
+}
 
 async function addUser() {
   try {
