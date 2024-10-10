@@ -15,9 +15,12 @@ __git__:
 
 __XAMPP Control panel__:
 Запуск клиентской части происходит через Apache. Для этого необходимо создать виртуальный хост:
-1. В файле httpd.conf (обычно хранится в директории "C:\xampp\apache\conf\httpd.conf", либо через кнопку "Config - Apache (httpd.conf)") необходимо убрать символ "#" (комментарий) из строки "Include conf/extra/httpd-vhosts.conf".
+1. В файле httpd.conf (обычно хранится в директории "C:\xampp\apache\conf\httpd.conf", либо через кнопку "Config - Apache (httpd.conf)") необходимо убрать символ "#" (комментарий) из строки:
+```
+Include conf/extra/httpd-vhosts.conf
+```
 2. Открыть файл httpd-vhosts.conf (обычно хранится в директории "C:\xampp\apache\conf\extra\httpd-vhosts.conf") и добавить конфигурацию нового виртуального хоста:
-```conf
+```
 <VirtualHost *:80>
     DocumentRoot "C:/путь/к/директории/фронтенда"
     ServerName frontend.local
