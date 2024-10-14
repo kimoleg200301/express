@@ -65,7 +65,7 @@ app.get('/', function(req, res) {
     link_to_image: `images/image1.png`,
     rating: 8,
     description: `Укладка для волос предназначен для укладывания волос. Данный товар не оставит клиентов без внимания!`,
-    reviewse: ``
+    review: ``
   })
 });
 
