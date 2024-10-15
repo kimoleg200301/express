@@ -55,19 +55,19 @@ function authenticateToken(req, res, next) {
 //     }
 //     response.json(result);
 //   })
-// });
-
-// app.get("/", function(request, response) {
-//   const data = {
-//     message: 'Hello World!',
-//     status: 'success',
-//   }
-//   response.json(data);
 // }); 
 
-// app.get('/', authenticateToken, function(req, res) {
-
-// });
+app.get('/', function(req, res) {
+  //место для написания запросов к базе данных для извлечения всех товаров. Ниже написан пример результата запросов из БД
+  res.json({
+    id: 1,
+    name: `Паста матовая "NISHMAN Matte Paste Hair Texturizing M3 Mess Up" для формирования беспорядочной фиксации 30мл`,
+    link_to_image: `images/image1.png`,
+    rating: 8,
+    description: `Укладка для волос предназначен для укладывания волос. Данный товар не оставит клиентов без внимания!`,
+    review: ``
+  })
+});
 
 async function getUser() {
   try {
@@ -81,6 +81,7 @@ async function getUser() {
       //     console.log(`Login: ${result}`);
       //   }
       // })
+
       const [data] = await pool.query(`select * from users where name = ?`, [login]);
       if (data.length > 0) {
         if (data[0].password === password) {
@@ -92,7 +93,6 @@ async function getUser() {
           // начало генерации токена
 
           const token = jwt.sign({name: data[0].name}, 'mother', { expiresIn: '1h' });
-          
           if (req.headers['user-agent'].includes('Mozilla')) {
             res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Strict' });
           }
@@ -153,8 +153,7 @@ async function getUser() {
     console.error('Ошибка при подключении к базе данных!', error);
     throw error;
   }
-
-} 
+}
 
 async function addUser() {
   try {
