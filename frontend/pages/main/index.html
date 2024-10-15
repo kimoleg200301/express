@@ -24,24 +24,20 @@
     const image_ = document.getElementById('image');
     const rating_ = document.getElementById('rating');
 
-    /*const token = 'jwt_token';
-    await fetch('http://localhost:3000/auth', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(data => alert(data.message))
-    .catch(error => alert('Ошибка со стороны клиента'));*/
     fetch('http://localhost:3000/', {
-        method: 'GET',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         }
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) { // Проверяем, успешен ли запрос
+            throw new Error(`Ошибка ${res.status}: ${res.statusText}`);
+        }
+        return res.json();
+    })
     .then(data => {
+        alert(data.message);
         name_.textContent = data.object_name;
         image_.textContent = data.link_to_image;
         rating_.textContent = data.rating;
@@ -49,4 +45,5 @@
 
 
     })
+    .catch(error => alert('Ошибка со стороны клиента'));
 </script>
