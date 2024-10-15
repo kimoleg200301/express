@@ -42,9 +42,11 @@
     })
     .then(res => res.json())
     .then(data => {
-        name_.textContent = data.name;
+        name_.textContent = data.object_name;
         image_.textContent = data.link_to_image;
         rating_.textContent = data.rating;
+
+
 
     })
 </script>

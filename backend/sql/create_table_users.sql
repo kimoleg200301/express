@@ -11,8 +11,9 @@ select * from users;
 insert into users (name, password)
 values ('kimoleg', 'kim20030101oleg');
 
+-- добавить
+alter table users
+add column role varchar(255) not null;
 
-
-
-
+-- добавить
 

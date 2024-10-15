@@ -57,16 +57,12 @@ function authenticateToken(req, res, next) {
 //   })
 // }); 
 
-app.get('/', function(req, res) {
+app.get('/', async function(req, res) {
   //место для написания запросов к базе данных для извлечения всех товаров. Ниже написан пример результата запросов из БД
-  res.json({
-    id: 1,
-    name: `Паста матовая "NISHMAN Matte Paste Hair Texturizing M3 Mess Up" для формирования беспорядочной фиксации 30мл`,
-    link_to_image: `images/image1.png`,
-    rating: 8,
-    description: `Укладка для волос предназначен для укладывания волос. Данный товар не оставит клиентов без внимания!`,
-    review: ``
-  })
+  const [data] = await pool.query(`select * from objects`);
+  //const [review_] = await pool.query(`SELECT * FROM objects o INNER JOIN reviews r ON o.reviews_id = r.reviews_id;`);
+
+  res.json(data[0]);
 });
 
 async function getUser() {
