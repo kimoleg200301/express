@@ -38,16 +38,33 @@
         return res.json();
     })
     .then(data => {
-        name_.textContent = data.object_name;
-        image_.textContent = data.link_to_image;
-        rating_.textContent = data.rating;
-
-
-
+        if (data.message) {
+            alert(data.message);
+        }
+        else {
+            name_.textContent = data.object_name;
+            image_.textContent = data.link_to_image;
+            rating_.textContent = data.rating;
+        }
     })
-    .catch(error => alert('Ошибка со стороны клиента'));
+    .catch(error => console.log('Ошибка со стороны клиента'));
 
-    function content() {
-        fetch()
-    }
+    /*function content() {
+        fetch('http://localhost:3000/to_content', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id_content: 1, // это образно
+            }),
+            credentials: 'include'
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.sucess) {
+                window.location.href = 'main/content.html';
+            }
+        })
+    }*/
 </script>

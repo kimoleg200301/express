@@ -10,7 +10,7 @@ const ip = '192.168.31.245';
 
 app.use(cors({
   origin: 'http://localhost', // ваш клиентский домен
-  credentials: true // позволяет передавать cookies
+  credentials: true, // позволяет передавать cookies
 }));
 app.use(express.json());
 app.use(cookieParser());
@@ -30,12 +30,12 @@ function authenticateToken(req, res, next) {
     console.log(token);
 
   if (!token) {
-    return res.status(401).json({ message: 'Токен не предоставлен!' });
+    return res.json({ message: 'Токен не предоставлен!' });
   }
 
   jwt.verify(token, 'qwerty', (err, decoded) => {
     if (err) {
-      return res.status(403).json({ message: 'Токен не валидный!' });
+      return res.json({ message: 'Токен не валидный!' });
     }
     req.user = decoded; 
     next();
@@ -49,8 +49,10 @@ app.post('/', authenticateToken, async function(req, res) {
 });
 
 app.get('/content', authenticateToken, async function(req, res) {
-  const id_content = req.query.id_content;
-  const [data] = await pool.query(`SELECT object_name, link_to_image, rating, description, users_id, grade, review FROM objects o INNER JOIN reviews r ON o.reviews_id = r.reviews_id where objects_id = ?`, [id_content]);
+  const id_content = req.query.id;
+  console.log(`id: ${id_content}`);
+  const [data] = await pool.query(`SELECT object_name, link_to_image, rating, description, users_id, grade, review FROM objects o INNER JOIN reviews r ON o.objects_id = r.objects_id`);
+  console.log(`data: ${data[0]}`);
   res.json(data[0]);
 });
 
