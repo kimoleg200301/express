@@ -28,7 +28,8 @@
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include',
     })
     .then(res => {
         if (!res.ok) { // Проверяем, успешен ли запрос
@@ -37,7 +38,6 @@
         return res.json();
     })
     .then(data => {
-        alert(data.message);
         name_.textContent = data.object_name;
         image_.textContent = data.link_to_image;
         rating_.textContent = data.rating;

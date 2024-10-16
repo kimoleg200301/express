@@ -26,8 +26,8 @@ const pool = mysql.createPool({
 });
 
 function authenticateToken(req, res, next) {
-  const token = req.cookies.jwt_token || req.headers['Authorization'];
-  console.log(req.cookies.jwt_token);
+    const token = req.cookies.jwt_token || req.headers['Authorization'];
+    console.log(token);
 
   if (!token) {
     return res.status(401).json({ message: 'Токен не предоставлен!' });
