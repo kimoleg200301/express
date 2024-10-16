@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> | kioreviews</title>
+</head>
+<body>
+  <h1 id="object_name"></h1>
+  <span id="link_to_image"></span>
+  <span id="rating"></span>
+  <span id="description"></span>
+  <span id="users_id"></span>
+  <span id="grade"></span>
+  <span id="review"></span>
+</body>
+<script>
+  const object_name_ = document.getElementById('object_name');
+  const link_to_image_ = document.getElementById('link_to_image');
+  const rating_ = document.getElementById('rating');
+  const description_ = document.getElementById('description');
+  const users_id_ = document.getElementById('users_id');
+  const grade_ = document.getElementById('grade');
+  const review_ = document.getElementById('review');
+
+  fetch('http://localhost:3000/content', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    credentials: 'include'
+  })
+  .then(res => res.json)
+  .then(data => {
+    object_name_.textContent = data.object_name;
+    link_to_image_.textContent = data.link_to_image;
+    rating_.textContent = data.rating;
+    description_.textContent = data.description;
+    users_id_.textContent = data.users_id;
+    grade_.textContent = data.grade;
+    review_.textContent = data.review;
+  })
+  .catch(error => alert('Ошибка со стороны клиента'));
+</script>
+</html>

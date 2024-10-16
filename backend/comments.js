@@ -45,9 +45,12 @@ function authenticateToken(req, res, next) {
 
 app.post('/', authenticateToken, async function(req, res) {
   const [data] = await pool.query(`select * from objects`);
-  //const [review_] = await pool.query(`SELECT * FROM objects o INNER JOIN reviews r ON o.reviews_id = r.reviews_id;`);
+  res.json(data[0]);
+});
 
-
+app.get('/content', authenticateToken, async function(req, res) {
+  const id_content = req.query.id_content;
+  const [data] = await pool.query(`SELECT object_name, link_to_image, rating, description, users_id, grade, review FROM objects o INNER JOIN reviews r ON o.reviews_id = r.reviews_id where objects_id = ?`, [id_content]);
   res.json(data[0]);
 });
 
