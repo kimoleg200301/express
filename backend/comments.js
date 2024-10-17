@@ -42,6 +42,8 @@ function authenticateToken(req, res, next) {
   });
 }
 
+let a = undefined; //найти другой метод
+
 app.post('/', authenticateToken, async function(req, res) {
   const [data] = await pool.query(`select * from objects`);
   res.json(data);
@@ -49,10 +51,12 @@ app.post('/', authenticateToken, async function(req, res) {
 
 app.get('/content', authenticateToken, async function(req, res) {
   const id_content = req.query.id;
-  console.log(`id: ${id_content}`);
-  const [data] = await pool.query(`SELECT object_name, link_to_image, rating, description, users_id, grade, review FROM objects o INNER JOIN reviews r ON o.objects_id = r.objects_id`);
-  console.log(`data: ${data[0]}`);
-  res.json(data[0]);
+  console.log(`id: ${a}`);
+  //const [data] = await pool.query(`SELECT object_name, link_to_image, rating, description, users_id, grade, review FROM objects o INNER JOIN reviews r ON o.objects_id = r.objects_id`);
+  const [data_object] = await pool.query(`SELECT * from objects where objects_id = ?`, [a]); //найти другой метод
+  console.log(`data: ${data_object[0]}`);
+  res.json(data_object);
+  a = id_content; //найти другой метод
 });
 
 async function getUser() {

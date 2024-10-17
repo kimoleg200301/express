@@ -23,7 +23,7 @@
   const grade_ = document.getElementById('grade');
   const review_ = document.getElementById('review');
 
-  fetch('http://localhost:3000/content?id=1', {
+  fetch('http://localhost:3000/content', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -38,18 +38,18 @@
   })
   .then(data => {
     if (data.message) {
-      alert(data.message);
+      return alert(data.message);
     }
     else {
-      object_name_.textContent = data.object_name;
-      link_to_image_.textContent = data.link_to_image;
-      rating_.textContent = data.rating;
-      description_.textContent = data.description;
-      users_id_.textContent = data.users_id;
+      object_name_.textContent = data[0].object_name;
+      link_to_image_.textContent = data[0].link_to_image;
+      rating_.textContent = data[0].rating;
+      description_.textContent = data[0].description;
+      /*users_id_.textContent = data.users_id;
       grade_.textContent = data.grade;
-      review_.textContent = data.review;
+      review_.textContent = data.review;*/
     }
   })
-  .catch(error => console.log('Ошибка со стороны клиента'));
+  .catch(error => console.log(error, 'Ошибка со стороны клиента'));
 </script>
 </html>

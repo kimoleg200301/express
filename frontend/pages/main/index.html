@@ -51,27 +51,28 @@
                     </div>
                 `);
             });
-            /**/
+            /*----*/
         }
     })
     .catch(error => console.log('Ошибка со стороны клиента'));
 
     function content(id_content) {
-        fetch('http://localhost:3000/to_content', {
+        fetch(`http://localhost:3000/content?id=${id_content}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                id_content: id_content,
-            }),
             credentials: 'include'
         })
         .then(res => res.json())
         .then(data => {
-            if (data.sucess) {
-                window.location.href = 'main/content.html'; //'main/content.html?id=id_content'
+            if (data.message) {
+                return alert(data.message);
             }
+            window.location.href = 'content.html'
+        })
+        .catch(error => {
+            console.log(error, 'Ошибка со стороны клиента');
         })
     }
 </script>
