@@ -35,17 +35,16 @@ function authenticateToken(req, res, next) {
 
   jwt.verify(token, 'qwerty', (err, decoded) => {
     if (err) {
-      return res.json({ message: 'Токен не валидный!' });
+      return res.json({ message: 'Токен не валидный, либо срок его действия истек!' });
     }
     req.user = decoded; 
     next();
   });
-
 }
 
 app.post('/', authenticateToken, async function(req, res) {
   const [data] = await pool.query(`select * from objects`);
-  res.json(data[0]);
+  res.json(data);
 });
 
 app.get('/content', authenticateToken, async function(req, res) {

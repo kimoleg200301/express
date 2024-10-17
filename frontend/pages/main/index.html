@@ -13,16 +13,9 @@
     </style>
 </head>
 <body>
-<div class="container">
-    <h3 id="name"></h3>
-    <p id="image"></p>
-    <p id="rating"></p>
-    <button onclick="content()">Перейти</button>
-</div>
+<div id="container_id"></div>
 <script>
-    const name_ = document.getElementById('name');
-    const image_ = document.getElementById('image');
-    const rating_ = document.getElementById('rating');
+    const container_id_ = document.getElementById('container_id');
 
     fetch('http://localhost:3000/', {
         method: 'POST',
@@ -42,29 +35,43 @@
             alert(data.message);
         }
         else {
-            name_.textContent = data.object_name;
-            image_.textContent = data.link_to_image;
-            rating_.textContent = data.rating;
+            /*Логи*/
+            const count = Object.keys(data).length; 
+            console.log(count);
+            console.log(data);
+            /*----*/
+            /*Логика отображения каждого блока в зависимости от кол-во строк*/
+            data.forEach(function (el, index) {
+                container_id_.insertAdjacentHTML('beforeend', `
+                    <div class='container' id='container_${el.objects_id}'>
+                        <h3 id="name_${el.objects_id}">${el.object_name}</h3>
+                        <p id="image_${el.objects_id}">${el.link_to_image}</p>
+                        <p id="rating_${el.objects_id}">${el.rating}</p>
+                        <button onclick="content(${el.objects_id})">Перейти</button>
+                    </div>
+                `);
+            });
+            /**/
         }
     })
     .catch(error => console.log('Ошибка со стороны клиента'));
 
-    /*function content() {
+    function content(id_content) {
         fetch('http://localhost:3000/to_content', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                id_content: 1, // это образно
+                id_content: id_content,
             }),
             credentials: 'include'
         })
         .then(res => res.json())
         .then(data => {
             if (data.sucess) {
-                window.location.href = 'main/content.html';
+                window.location.href = 'main/content.html'; //'main/content.html?id=id_content'
             }
         })
-    }*/
+    }
 </script>
