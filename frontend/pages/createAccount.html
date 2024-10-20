@@ -15,21 +15,24 @@
 <body>
 <div class="container">
     <h1>Создать аккаунт</h1>
-    <input type="text" id="name" placeholder="Имя пользователя">
-    <input type="password" id="pass" placeholder="Новый пароль">
-    <input type="password" id="pass_" placeholder="Повторите пароль">
-    <button onclick="dataAuth()">Создать аккаунт</button>
+    <form>
+        <input type="text" id="name" placeholder="Имя пользователя">
+        <input type="password" id="pass" placeholder="Новый пароль">
+        <input type="password" id="pass_" placeholder="Повторите пароль">
+        <button onclick="dataAuth()" type="submit">Создать аккаунт</button>
+    </form>
     <a href="welcome.html">На главную</a>
     <div id="loading-indicator">Идет обработка...</div>
     <div id="output">Результаты будут отображены здесь...</div>
 </div>
 
 <script>
-    function dataAuth() {
+    async function dataAuth() {
+        event.preventDefault();
         const name = document.getElementById('name').value;
         const pass = document.getElementById('pass').value;
         const pass_ = document.getElementById('pass_').value;
-        fetch('http://localhost:3000/create_account', {
+        await fetch('http://localhost:3000/create_account', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -55,74 +58,6 @@
             alert(`Error: ${error}`);
         })
     }
-
-
-    // function processDocument() {
-    //     const docType = document.getElementById('docType').value;
-    //     const fileInput = document.getElementById('fileInput');
-    //     const file = fileInput.files[0];
-    //     if (!file) {
-    //         alert("Пожалуйста, выберите файл для обработки.");
-    //         return;
-    //     }
-
-    //     showLoading();
-
-    //     if (file.type === "application/pdf") {
-    //         processPDF(file, docType);
-    //     } else {
-    //         document.getElementById('output').innerText = "Unsupported file type";
-    //         hideLoading();
-    //     }
-    // }
-
-    // function showLoading() {
-    //     document.getElementById('loading-indicator').style.display = 'block';
-    //     document.getElementById('output').style.display = 'none';
-    // }
-
-    // function hideLoading() {
-    //     document.getElementById('loading-indicator').style.display = 'none';
-    //     document.getElementById('output').style.display = 'block';
-    // }
-
-    // function sendTextToServer(text, docType) {
-    //     const formData = new URLSearchParams();
-    //     text.forEach((item, index) => {
-    //         formData.append(`items[${index}]`, item);
-    //     });
-    //     fetch('processDocument.php', {
-    //         method: 'POST',
-    //         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    //         body: `${formData.toString()}&docType=${docType}`
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         document.getElementById('output').innerText = data.message;
-    //         hideLoading();
-    //     })
-    //     .catch(error => {
-    //         console.error('Error:', error);
-    //         document.getElementById('output').innerText = 'Ошибка сервера. Подробности в консоли.';
-    //         hideLoading();
-    //     });
-    // }
-
-    // function processPDF(file, docType) {
-    //     const fileReader = new FileReader();
-    //     fileReader.onload = function() {
-    //         const typedarray = new Uint8Array(this.result);
-    //         pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-    //             pdf.getPage(1).then(function(page) {
-    //                 page.getTextContent().then(function(textContent) {
-    //                     console.log(textContent.items.map(item => item.str), docType)
-    //                     sendTextToServer(textContent.items.map(item => item.str), docType);
-    //                 });
-    //             });
-    //         });
-    //     };
-    //     fileReader.readAsArrayBuffer(file);
-    // }
 </script>
 </body>
 </html>

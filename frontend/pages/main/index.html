@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-<div id="container_id"></div>
+    <div id="container_id"></div>
 <script>
     const container_id_ = document.getElementById('container_id');
 
@@ -33,6 +33,7 @@
     .then(data => {
         if (data.message) {
             alert(data.message);
+            return window.location.href = data.href_welcome;
         }
         else {
             /*Логи*/
@@ -57,7 +58,7 @@
     .catch(error => console.log('Ошибка со стороны клиента'));
 
     function content(id_content) {
-        fetch(`http://localhost:3000/content?id=${id_content}`, {
+        fetch(`http://localhost:3000/content?id=${id_content}&flag=true`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -67,9 +68,13 @@
         .then(res => res.json())
         .then(data => {
             if (data.message) {
-                return alert(data.message);
+                alert(data.message);
+                return window.location.href = data.href_welcome;
             }
-            window.location.href = 'content.html'
+            else {
+                window.location.href = data.href;
+            }
+            
         })
         .catch(error => {
             console.log(error, 'Ошибка со стороны клиента');

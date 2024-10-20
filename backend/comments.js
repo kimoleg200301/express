@@ -26,23 +26,21 @@ const pool = mysql.createPool({
 });
 
 function authenticateToken(req, res, next) {
-    const token = req.cookies.jwt_token || req.headers['Authorization'];
-    console.log(token);
+  const token = req.cookies.jwt_token || req.headers['Authorization'];
+  console.log(token);
 
   if (!token) {
-    return res.json({ message: 'Токен не предоставлен!' });
+    return res.json({ message: 'Токен не предоставлен!', href_welcome: '../welcome.html' });
   }
 
   jwt.verify(token, 'qwerty', (err, decoded) => {
     if (err) {
-      return res.json({ message: 'Токен не валидный, либо срок его действия истек!' });
+      return res.json({ message: 'Токен не валидный, либо срок его действия истек!', href_welcome: '../welcome.html' });
     }
     req.user = decoded; 
     next();
   });
 }
-
-let a = undefined; //найти другой метод
 
 app.post('/', authenticateToken, async function(req, res) {
   const [data] = await pool.query(`select * from objects`);
@@ -51,12 +49,19 @@ app.post('/', authenticateToken, async function(req, res) {
 
 app.get('/content', authenticateToken, async function(req, res) {
   const id_content = req.query.id;
-  console.log(`id: ${a}`);
-  //const [data] = await pool.query(`SELECT object_name, link_to_image, rating, description, users_id, grade, review FROM objects o INNER JOIN reviews r ON o.objects_id = r.objects_id`);
-  const [data_object] = await pool.query(`SELECT * from objects where objects_id = ?`, [a]); //найти другой метод
-  console.log(`data: ${data_object[0]}`);
-  res.json(data_object);
-  a = id_content; //найти другой метод
+  const flag_content = req.query.flag;
+  if (!flag_content) {
+    console.log(`id: ${id_content}`);
+    //const [data] = await pool.query(`SELECT object_name, link_to_image, rating, description, users_id, grade, review FROM objects o INNER JOIN reviews r ON o.objects_id = r.objects_id`);
+    const [data_object] = await pool.query(`SELECT * from objects where objects_id = ?`, [id_content]); //найти другой метод
+    console.log(`data: ${data_object[0]}`);
+    res.json(data_object);
+  }
+  else {
+    res.json({
+      href: `content.html?id=${id_content}`
+    });
+  }
 });
 
 async function getUser() {
