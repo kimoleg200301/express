@@ -66,7 +66,7 @@ function authenticateToken(req, res, next) {
 // }); 
 
 // app.get('/', authenticateToken, function(req, res) {
-
+//   res.send('Hello World!');
 // });
 
 async function getUser() {
