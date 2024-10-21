@@ -13,22 +13,71 @@
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Название</h1>
-    <p>Картинка</p>
-    <p>Рейтинг</p>
-    <button onclick="content()">Перейти</button>
-</div>
+    <div id="container_id"></div>
 <script>
-    const token = 'jwt_token';
-    await fetch('http://localhost:3000/auth', {
-        method: 'GET',
+    const container_id_ = document.getElementById('container_id');
+
+    fetch('http://localhost:3000/', {
+        method: 'POST',
         headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+    })
+    .then(res => {
+        if (!res.ok) { // Проверяем, успешен ли запрос
+            throw new Error(`Ошибка ${res.status}: ${res.statusText}`);
+        }
+        return res.json();
+    })
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+            return window.location.href = data.href_welcome;
+        }
+        else {
+            /*Логи*/
+            const count = Object.keys(data).length; 
+            console.log(count);
+            console.log(data);
+            /*----*/
+            /*Логика отображения каждого блока в зависимости от кол-во строк*/
+            data.forEach(function (el, index) {
+                container_id_.insertAdjacentHTML('beforeend', `
+                    <div class='container' id='container_${el.objects_id}'>
+                        <h3 id="name_${el.objects_id}">${el.object_name}</h3>
+                        <p id="image_${el.objects_id}">${el.link_to_image}</p>
+                        <p id="rating_${el.objects_id}">${el.rating}</p>
+                        <button onclick="content(${el.objects_id})">Перейти</button>
+                    </div>
+                `);
+            });
+            /*----*/
         }
     })
-    .then(res => res.json())
-    .then(data => alert(data.message))
-    .catch(error => alert('Ошибка со стороны клиента'));
+    .catch(error => console.log('Ошибка со стороны клиента'));
+
+    function content(id_content) {
+        fetch(`http://localhost:3000/content?id=${id_content}&flag=true`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                return window.location.href = data.href_welcome;
+            }
+            else {
+                window.location.href = data.href;
+            }
+            
+        })
+        .catch(error => {
+            console.log(error, 'Ошибка со стороны клиента');
+        })
+    }
 </script>

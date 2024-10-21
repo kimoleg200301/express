@@ -2,13 +2,18 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const port = 3000;
 const ip = '192.168.31.245';
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost', // ваш клиентский домен
+  credentials: true, // позволяет передавать cookies
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 const pool = mysql.createPool({
   host: 'localhost',
@@ -21,53 +26,43 @@ const pool = mysql.createPool({
 });
 
 function authenticateToken(req, res, next) {
-  const token = req.cookies.jwt_token || req.headers('Authorization');
+  const token = req.cookies.jwt_token || req.headers['Authorization'];
+  console.log(token);
 
   if (!token) {
-    return res.status(401).json({ message: 'Токен не предоставлен!' });
+    return res.json({ message: 'Токен не предоставлен!', href_welcome: '../welcome.html' });
   }
 
-  jwt.verify(token, 'mother', (err, decoded) => {
+  jwt.verify(token, 'qwerty', (err, decoded) => {
     if (err) {
-      return res.status(403).json({ message: 'Токен не валидный!' });
+      return res.json({ message: 'Токен не валидный, либо срок его действия истек!', href_welcome: '../welcome.html' });
     }
     req.user = decoded; 
     next();
   });
-
 }
 
-// con.connect((err) => {  
-//   if (err) { //'Ошибка поключения к базе данных: ', err.stack
-//     console.error(
-//       app.get("/result_to_connect_db", function(request, response) {
-//         const result = {
-//           message: `Ошибка подключения к базе данных: ${err.stack}`,
-//         }
-//         response.json(result);
-//       })
-//     );
-//     return; 
-//   }
-//   app.get("/result_to_connect_db", function(request, response) {
-//     const result = {
-//       message: 'Успешное подключение к базе данных!',
-//     }
-//     response.json(result);
-//   })
-// });
+app.post('/', authenticateToken, async function(req, res) {
+  const [data] = await pool.query(`select * from objects`);
+  res.json(data);
+});
 
-// app.get("/", function(request, response) {
-//   const data = {
-//     message: 'Hello World!',
-//     status: 'success',
-//   }
-//   response.json(data);
-// }); 
-
-// app.get('/', authenticateToken, function(req, res) {
-//   res.send('Hello World!');
-// });
+app.get('/content', authenticateToken, async function(req, res) {
+  const id_content = req.query.id;
+  const flag_content = req.query.flag;
+  if (!flag_content) {
+    console.log(`id: ${id_content}`);
+    //const [data] = await pool.query(`SELECT object_name, link_to_image, rating, description, users_id, grade, review FROM objects o INNER JOIN reviews r ON o.objects_id = r.objects_id`);
+    const [data_object] = await pool.query(`SELECT * from objects where objects_id = ?`, [id_content]); //найти другой метод
+    console.log(`data: ${data_object[0]}`);
+    res.json(data_object);
+  }
+  else {
+    res.json({
+      href: `content.html?id=${id_content}`
+    });
+  }
+});
 
 async function getUser() {
   try {
@@ -81,23 +76,24 @@ async function getUser() {
       //     console.log(`Login: ${result}`);
       //   }
       // })
+
       const [data] = await pool.query(`select * from users where name = ?`, [login]);
+
       if (data.length > 0) {
         if (data[0].password === password) {
-          res.json({
-            success: `Поздравляем! Вы успешно авторизованы!`,
-            login: `Ваш логин: ${login}`,
-            password: `Ваш пароль: ${password}`
-          });
-          // начало генерации токена
+          const token = jwt.sign({name: data[0].name, role: data[0].role}, 'qwerty', { expiresIn: '1h' });
+          console.log(`Token: ${token}`);
 
-          const token = jwt.sign({name: data[0].name}, 'mother', { expiresIn: '1h' });
-          
-          if (req.headers['user-agent'].includes('Mozilla')) {
-            res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Strict' });
+          if (req.headers['user-agent'] && req.headers['user-agent'].includes('Mozilla')) {
+            res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Lax', path: '/' });
+            return res.json({
+              success: `Поздравляем! Вы успешно авторизованы!`,
+              login: `Ваш логин: ${login}`,
+              password: `Ваш пароль: ${password}`
+            });
           }
           else {
-            res.json({token});
+            return res.json({token});
           }
         }
         else {
@@ -153,8 +149,7 @@ async function getUser() {
     console.error('Ошибка при подключении к базе данных!', error);
     throw error;
   }
-
-} 
+}
 
 async function addUser() {
   try {
@@ -163,7 +158,7 @@ async function addUser() {
       const [data_check] = await pool.query(`select name from users where name = ?`, [login])
 
       if (password === password_ || data_check[0] !== login) {
-        const [data] = await pool.query(`insert into users (name, password) values (?, ?)`, [login, password]);
+        const [data] = await pool.query(`insert into users (name, password, role) values (?, ?, ?)`, [login, password, 'client']);
         res.json({
           result: true,
           message: `Аккаунт создан. Авторизуйтесь под новым аккаунтом! ${data[0]}`,
