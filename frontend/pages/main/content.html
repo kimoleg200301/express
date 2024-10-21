@@ -5,35 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: 'Arial', sans-serif; padding: 20px; background-color: #f8f9fa; }
-    .container { width: 90%; max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); }
+    .container { width: 90%; max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); }
     #output, #loading-indicator { margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 5px; min-height: 100px; white-space: pre-wrap; display: none; }
     input, button, select { width: 100%; padding: 10px; margin-top: 10px; }
     button { background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
     button:hover { background-color: #0056b3; }
   </style>
-  <title> | kioreviews</title>
+  <title id="title_dynamic"></title>
 </head>
 <body>
-  <div id="container">
-    <h3 id="name"></h3>
-    <p id="image"></p>
+
+  <div class="container">
+    <h3 id="object_name"></h3>
+    <p id="link_to_image"></p>
     <p id="rating"></p>
-    <button onclick="content()">Перейти</button>
   </div>
+  <div class="container">
+    <h3>Описание</h3>
+    <p id="description"></p>
+  </div>
+  <div class="container">
+    <h3>Отзывы</h3>
+    <div id="review"></div>
   </div>
 
-
-
-
-
-
-  <!-- <h1 id="object_name"></h1>
-  <span id="link_to_image"></span>
-  <span id="rating"></span>
-  <span id="description"></span>
-  <span id="users_id"></span>
-  <span id="grade"></span>
-  <span id="review"></span> -->
 </body>
 <script>
   const params = new URLSearchParams(window.location.search);
@@ -46,6 +41,7 @@
   const users_id_ = document.getElementById('users_id');
   const grade_ = document.getElementById('grade');
   const review_ = document.getElementById('review');
+  const title_dynamic_ = document.getElementById('title_dynamic'); //title
 
   fetch(`http://localhost:3000/content?id=${id_content}`, {
     method: 'GET',
@@ -64,15 +60,27 @@
     if (data.message) {
       alert(data.message);
       return window.location.href = data.href_welcome;
-  }
+    }
     else {
-      object_name_.textContent = data[0].object_name;
-      link_to_image_.textContent = data[0].link_to_image;
-      rating_.textContent = data[0].rating;
-      description_.textContent = data[0].description;
-      /*users_id_.textContent = data.users_id;
-      grade_.textContent = data.grade;
-      review_.textContent = data.review;*/
+      /*Логи*/
+      console.log(data.reviews);
+      /*----*/
+      document.title = `${data.object[0].object_name} | kiomessage`; // Назначение тайтла названием
+      object_name_.textContent = data.object[0].object_name;
+      link_to_image_.textContent = data.object[0].link_to_image;
+      rating_.textContent = data.object[0].rating;
+      description_.textContent = data.object[0].description;
+
+      /*data.reviews.forEach(function (el, index) {
+        review_.insertAdjacentHTML('beforeend', `
+          <div id="user_id_${el.users_id}">
+        `);
+      });*/ //подумать как отображать отдельную запись данных клиентов
+
+      
+      /*users_id_.textContent = data.reviews.users_id;
+      grade_.textContent = data.object.grade;
+      review_.textContent = data.object.review;*/
     }
   })
   .catch(error => console.log(error, 'Ошибка со стороны клиента'));

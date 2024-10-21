@@ -6,6 +6,7 @@
     <style>
         body { font-family: 'Arial', sans-serif; padding: 20px; background-color: #f8f9fa; }
         .container { width: 90%; max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); }
+        .container_is_style { margin-bottom: 10px; }
         #output, #loading-indicator { margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 5px; min-height: 100px; white-space: pre-wrap; display: none; }
         input, button, select { width: 100%; padding: 10px; margin-top: 10px; }
         button { background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
@@ -13,7 +14,7 @@
     </style>
 </head>
 <body>
-    <div id="container_id"></div>
+    <div id="container_id" class="container_is_style"></div>
 <script>
     const container_id_ = document.getElementById('container_id');
 
@@ -37,7 +38,7 @@
         }
         else {
             /*Логи*/
-            const count = Object.keys(data).length; 
+            const count = Object.keys(data).length;           
             console.log(count);
             console.log(data);
             /*----*/
@@ -74,7 +75,6 @@
             else {
                 window.location.href = data.href;
             }
-            
         })
         .catch(error => {
             console.log(error, 'Ошибка со стороны клиента');

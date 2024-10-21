@@ -49,16 +49,23 @@ app.post('/', authenticateToken, async function(req, res) {
 
 app.get('/content', authenticateToken, async function(req, res) {
   const id_content = req.query.id;
+
   const flag_content = req.query.flag;
   if (!flag_content) {
     console.log(`id: ${id_content}`);
     //const [data] = await pool.query(`SELECT object_name, link_to_image, rating, description, users_id, grade, review FROM objects o INNER JOIN reviews r ON o.objects_id = r.objects_id`);
-    const [data_object] = await pool.query(`SELECT * from objects where objects_id = ?`, [id_content]); //найти другой метод
-    console.log(`data: ${data_object[0]}`);
-    res.json(data_object);
+    const [data_object] = await pool.query(`SELECT * FROM objects WHERE objects_id = ?`, [id_content]); // objects
+    const [data_reviews] = await pool.query(`SELECT * FROM reviews WHERE objects_id = ?`, [data_object[0].objects_id]); // reviews
+    // const [data_users] подумать, как отправлять отызывы клиентов
+    console.log(`data_object: ${data_object[0]}`); // object log 
+    console.log(`data_reviews: ${data_reviews[0]}`); // review log
+    return res.json({
+      object: data_object,
+      reviews: data_reviews
+    });
   }
   else {
-    res.json({
+    return res.json({
       href: `content.html?id=${id_content}`
     });
   }
@@ -107,43 +114,6 @@ async function getUser() {
           error: `Имя не найдено!`
         });
       }
-    
-      // con.query(query_data, (error, result) => {
-      //   if (error) throw error;
-      //   if (result.length > 0) {
-      //     con.query(query_password, async (error, result) => {
-      //       if (error) throw error;
-      //       if (result.length > 0) {
-      //         const [data_user] = await con.execute('select * from users where name = ?', [login]);
-    
-      //         res.json({
-      //           success: `Поздравляем! Вы успешно авторизованы!`,
-      //           login: `Ваш логин: ${login}`,
-      //           password: `Ваш пароль: ${password}`
-      //         });
-      //         // начало генерации токена
-      //         const token = jwt.sign({name: data_user.name}, 'mother');
-              
-      //         if (req.headers['user-agent'].includes('Mozilla')) {
-      //           res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Strict' });
-      //         }
-      //         else {
-      //           res.json({token});
-      //         }
-      //       }
-      //       else {
-      //         res.json({
-      //           error: `Неверный пароль!`
-      //         });
-      //       }
-      //     });
-      //   }
-      //   else {
-      //     res.json({
-      //       error: `Введенное имя не найдено!`
-      //     });
-      //   }
-      // });
     });
   } catch (error) {
     console.error('Ошибка при подключении к базе данных!', error);
