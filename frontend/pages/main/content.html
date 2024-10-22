@@ -68,7 +68,7 @@
       document.title = `${data.object[0].object_name} | kiomessage`; // Назначение тайтла названием
       object_name_.textContent = data.object[0].object_name;
       link_to_image_.textContent = data.object[0].link_to_image;
-      rating_.textContent = data.object[0].rating;
+      rating_.textContent = `Рейтинг: ${data.object[0].rating}/10`;
       description_.textContent = data.object[0].description;
 
       /*data.reviews.forEach(function (el, index) {
