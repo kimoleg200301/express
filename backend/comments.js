@@ -55,7 +55,7 @@ app.get('/content', authenticateToken, async function(req, res) {
     console.log(`id: ${id_content}`);
     //const [data] = await pool.query(`SELECT object_name, link_to_image, rating, description, users_id, grade, review FROM objects o INNER JOIN reviews r ON o.objects_id = r.objects_id`);
     const [data_object] = await pool.query(`SELECT * FROM objects WHERE objects_id = ?`, [id_content]); // objects
-    const [data_reviews] = await pool.query(`SELECT * FROM reviews WHERE objects_id = ?`, [data_object[0].objects_id]); // reviews
+    const [data_reviews] = await pool.query(`select reviews_id, name, grade, review from reviews r inner join users u on u.id = r.users_id where r.objects_id = ?`, [data_object[0].objects_id]); // reviews
     // const [data_users] подумать, как отправлять отызывы клиентов
     console.log(`data_object: ${data_object[0]}`); // object log 
     console.log(`data_reviews: ${data_reviews[0]}`); // review log

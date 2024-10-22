@@ -10,6 +10,7 @@
     input, button, select { width: 100%; padding: 10px; margin-top: 10px; }
     button { background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
     button:hover { background-color: #0056b3; }
+    #review { margin: 20px; }
   </style>
   <title id="title_dynamic"></title>
 </head>
@@ -71,11 +72,12 @@
       rating_.textContent = `Рейтинг: ${data.object[0].rating}/10`;
       description_.textContent = data.object[0].description;
 
-      /*data.reviews.forEach(function (el, index) {
+      data.reviews.forEach(function (el, index) {
         review_.insertAdjacentHTML('beforeend', `
-          <div id="user_id_${el.users_id}">
+          <h4>${el.name}</h4>
+          <p>${el.review}</p>
         `);
-      });*/ //подумать как отображать отдельную запись данных клиентов
+      }); //подумать как отображать отдельную запись данных клиентов
 
       
       /*users_id_.textContent = data.reviews.users_id;
