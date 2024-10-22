@@ -12,3 +12,6 @@ select * from users;
 insert into users (name, password, role)
 values ('kimoleg', 'kim20030101oleg', 'admin');
 
+
+git config --system http.sslcainfo "C:\Git\mingw64\etc\ssl\certs\ca-bundle.crt"
+
