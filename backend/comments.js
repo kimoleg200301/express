@@ -9,7 +9,7 @@ const port = 3000;
 const ip = '192.168.31.245';
 
 app.use(cors({
-  origin: 'http://localhost', // ваш клиентский домен
+  origin: 'http://localhost', // клиентский домен
   credentials: true, // позволяет передавать cookies
 }));
 app.use(express.json());
@@ -27,8 +27,9 @@ const pool = mysql.createPool({
 
 function authenticateToken(req, res, next) {
   const token = req.cookies.jwt_token || req.headers['Authorization'];
+  /*Логи*/
   console.log(token);
-
+  /*--------*/
   if (!token) {
     return res.json({ message: 'Токен не предоставлен!', href_welcome: '../welcome.html' });
   }
@@ -37,17 +38,34 @@ function authenticateToken(req, res, next) {
     if (err) {
       return res.json({ message: 'Токен не валидный, либо срок его действия истек!', href_welcome: '../welcome.html' });
     }
-    req.user = decoded; 
+    req.user = decoded;
+    /*Логи*/
+    console.log(`req.user = decoded (${decoded})`);
+    /*--------*/
     next();
   });
 }
 
-app.post('/', authenticateToken, async function(req, res) {
+app.post('/', authenticateToken, async function(req, res) { // index.html
   const [data] = await pool.query(`select * from objects`);
-  res.json(data);
+  const { name, role } = req.user;
+  return res.json({
+    data: data,
+    name: name,
+    role: role
+  });
 });
 
-app.get('/content', authenticateToken, async function(req, res) {
+app.post('/add_object', authenticateToken, async function(req, res) {
+  const { role } = req.user;
+  if (role === 'admin') {
+    return res.json({
+      // придумать, как реализовать добавление объекта только админом. Есть идея сделать проверку на открытие страницы  
+    });
+  }
+});
+
+app.get('/content', authenticateToken, async function(req, res) { // content.html index.html
   const id_content = req.query.id;
 
   const flag_content = req.query.flag;
@@ -92,7 +110,7 @@ async function getUser() {
           console.log(`Token: ${token}`);
 
           if (req.headers['user-agent'] && req.headers['user-agent'].includes('Mozilla')) {
-            res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Lax', path: '/' });
+            res.cookie('jwt_token', token, { httpOnly: true, sameSite: 'Strict', path: '/' });
             return res.json({
               success: `Поздравляем! Вы успешно авторизованы!`,
               login: `Ваш логин: ${login}`,

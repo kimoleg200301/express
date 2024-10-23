@@ -5,8 +5,7 @@
     <title>Главная | kioreviews</title>
     <style>
         body { font-family: 'Arial', sans-serif; padding: 20px; background-color: #f8f9fa; }
-        .container { width: 90%; max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); }
-        .container_is_style { margin-bottom: 10px; }
+        .container { width: 90%; max-width: 600px; margin: auto; margin-bottom: 10px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); }
         #output, #loading-indicator { margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 5px; min-height: 100px; white-space: pre-wrap; display: none; }
         input, button, select { width: 100%; padding: 10px; margin-top: 10px; }
         button { background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
@@ -14,9 +13,11 @@
     </style>
 </head>
 <body>
-    <div id="container_id" class="container_is_style"></div>
+    <div id="user"></div>
+    <div id="container_id"></div>
 <script>
     const container_id_ = document.getElementById('container_id');
+    const user_ = document.getElementById('user');
 
     fetch('http://localhost:3000/', {
         method: 'POST',
@@ -32,18 +33,38 @@
         return res.json();
     })
     .then(data => {
+        /*Для подтверждения аутентификации*/
         if (data.message) {
             alert(data.message);
             return window.location.href = data.href_welcome;
         }
+        /*-------------------------------*/
         else {
             /*Логи*/
             const count = Object.keys(data).length;           
             console.log(count);
-            console.log(data);
+            console.log(data.data);
             /*----*/
             /*Логика отображения каждого блока в зависимости от кол-во строк*/
-            data.forEach(function (el, index) {
+            if (data.role === 'admin') {
+                user_.insertAdjacentHTML('beforeend', `
+                    <div class='container'>
+                        <p><b>Имя пользователя</b>: ${data.name}</p>
+                        <p><b>Роль пользователя</b>: ${data.role}</p>
+                        <button onclick="add_object">Добавить объект</button>
+                    </div>
+            `);
+            }
+            else {
+                user_.insertAdjacentHTML('beforeend', `
+                    <div class='container'>
+                        <p><b>Имя пользователя</b>: ${data.name}</p>
+                        <p><b>Роль пользователя</b>: ${data.role}</p>
+                    </div>
+            `);
+            }
+
+            data.data.forEach(function (el, index) {
                 container_id_.insertAdjacentHTML('beforeend', `
                     <div class='container' id='container_${el.objects_id}'>
                         <h3 id="name_${el.objects_id}">${el.object_name}</h3>
@@ -58,6 +79,29 @@
     })
     .catch(error => console.log('Ошибка со стороны клиента'));
 
+    function add_object() {
+        fetch(`http://localhost:3000/add_object`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        })
+        .then(res => res.json())
+        .then(data => {
+            /*Для подтверждения аутентификации*/
+            if (data.message) {
+                alert(data.message);
+                return window.location.href = data.href_welcome;
+            }
+            /*-------------------------------*/
+            else {
+                // сюда написать логику после получения подтверждения валидности роли для функционирования кнопки. Есть идея получить токен на сервере и от него провести проверку роли
+            }
+        })
+        .catch(error => console.log('Ошибка со стороны клиента'));
+    }
+
     function content(id_content) {
         fetch(`http://localhost:3000/content?id=${id_content}&flag=true`, {
             method: 'GET',
@@ -68,13 +112,16 @@
         })
         .then(res => res.json())
         .then(data => {
+            /*Для подтверждения аутентификации*/
             if (data.message) {
                 alert(data.message);
                 return window.location.href = data.href_welcome;
             }
+            /*-------------------------------*/
             else {
                 window.location.href = data.href;
             }
+            
         })
         .catch(error => {
             console.log(error, 'Ошибка со стороны клиента');
