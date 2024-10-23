@@ -11,6 +11,7 @@
     button { background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
     button:hover { background-color: #0056b3; }
     .p_review { border-bottom: 1px solid rgb(78, 78, 78); padding-bottom: 25px; margin-left: 5px; }
+    #text_review { overflow: auto; height: 75px; width: 90%; max-width: 1200px; margin-left: 15px; }
   </style>
   <title id="title_dynamic"></title>
 </head>
@@ -27,7 +28,9 @@
   </div>
   <div class="container">
     <h3>Отправить отзыв</h3>
-    <p id="send_review"></p>
+    <input type="number" min="1" max="10" id="text_grade">
+    <textarea name="largeText" rows="10" cols="50" id="text_review"></textarea>
+    <button id="send_review" onclick="send_review()">Отправить</button>
   </div>
   <div class="container">
     <h3>Отзывы</h3>
@@ -47,6 +50,9 @@
   const grade_ = document.getElementById('grade');
   const review_ = document.getElementById('review');
   const title_dynamic_ = document.getElementById('title_dynamic'); //title
+  const text_grade_ = document.getElementById('text_grade');
+  const text_review_ = document.getElementById('text_review');
+  const send_review_ = document.getElementById('send_review');
 
   fetch(`http://localhost:3000/content?id=${id_content}`, {
     method: 'GET',
@@ -62,10 +68,12 @@
     return res.json();
   })
   .then(data => {
+    /*Для подтверждения аутентификации*/
     if (data.message) {
       alert(data.message);
       return window.location.href = data.href_welcome;
     }
+    /*-------------------------------*/
     else {
       /*Логи*/
       console.log(data.reviews);
@@ -90,5 +98,37 @@
     }
   })
   .catch(error => console.log(error, 'Ошибка со стороны клиента'));
+
+  function send_review() {
+    /*Логи*/
+    console.log(text_review_.value);
+    /*-------------*/
+    fetch(`http://localhost:3000/send_review`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        // написать сюда отправку коммента на сервер
+        data_grade: text_grade_.value,
+        data_review: text_review_.value
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      /*Для подтверждения аутентификации*/
+      if (data.message) {
+        alert(data.message);
+        return window.location.href = data.href_welcome;
+      }
+      /*-------------------------------*/
+      /*else {
+        // Написать сюда...
+      }*/
+    })
+    .catch(error => console.log(error, 'Ошибка со стороны клиента'));
+  }
+
 </script>
 </html>

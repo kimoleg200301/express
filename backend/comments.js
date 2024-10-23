@@ -89,6 +89,13 @@ app.get('/content', authenticateToken, async function(req, res) { // content.htm
   }
 });
 
+app.post('/send_review', authenticateToken, async function (req, res) {
+  const { data_grade, data_review } = req.body;
+  const { id } = req.user;
+  await pool.query(`INSERT INTO reviews (users_id, grade, review) VALUES (?, ?, ?)`, [id, data_grade, data_review]);
+  //
+});
+
 async function getUser() {
   try {
     app.post('/auth', async (req, res) => {
@@ -106,7 +113,7 @@ async function getUser() {
 
       if (data.length > 0) {
         if (data[0].password === password) {
-          const token = jwt.sign({name: data[0].name, role: data[0].role}, 'qwerty', { expiresIn: '1h' });
+          const token = jwt.sign({id: data[0].id, name: data[0].name, role: data[0].role}, 'qwerty', { expiresIn: '1h' });
           console.log(`Token: ${token}`);
 
           if (req.headers['user-agent'] && req.headers['user-agent'].includes('Mozilla')) {
