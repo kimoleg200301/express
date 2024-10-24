@@ -11,7 +11,10 @@
     button { background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
     button:hover { background-color: #0056b3; }
     .p_review { border-bottom: 1px solid rgb(78, 78, 78); padding-bottom: 25px; margin-left: 5px; }
+    .p_grade { margin-left: 5px; color: rgb(110, 110, 110); }
     #text_review { overflow: auto; height: 75px; width: 90%; max-width: 1200px; margin-left: 15px; }
+    #text_grade { width: 30%; margin-left: 15px; margin-bottom: 10px; }
+    .span_grade { margin-left: 10px; }
   </style>
   <title id="title_dynamic"></title>
 </head>
@@ -28,7 +31,7 @@
   </div>
   <div class="container">
     <h3>Отправить отзыв</h3>
-    <input type="number" min="1" max="10" id="text_grade">
+    <div><input type="number" min="1" max="10" id="text_grade"><span class="span_grade">Оценка объекта (от 1-10)</span></div>
     <textarea name="largeText" rows="10" cols="50" id="text_review"></textarea>
     <button id="send_review" onclick="send_review()">Отправить</button>
   </div>
@@ -85,16 +88,16 @@
       description_.textContent = data.object[0].description;
 
       data.reviews.forEach(function (el, index) {
+        const formattedText = el.review.replace(/\n/g, '<br>');
         review_.insertAdjacentHTML('beforeend', `
           <h4>${el.name}</h4>
-          <p class="p_review">${el.review}</p>
+          <p class="p_grade">Оценка: ${el.grade}</p>
+          <p class="p_review">${formattedText}</p>
         `);
-      }); //подумать как отображать отдельную запись данных клиентов
+      });
 
       
-      /*users_id_.textContent = data.reviews.users_id;
-      grade_.textContent = data.object.grade;
-      review_.textContent = data.object.review;*/
+      /*users_id_.textContent = data.reviews.users_id;*/
     }
   })
   .catch(error => console.log(error, 'Ошибка со стороны клиента'));
@@ -110,9 +113,9 @@
       },
       credentials: 'include',
       body: JSON.stringify({
-        // написать сюда отправку коммента на сервер
         data_grade: text_grade_.value,
-        data_review: text_review_.value
+        data_review: text_review_.value,
+        data_id_content: id_content
       })
     })
     .then(res => res.json())
@@ -123,9 +126,25 @@
         return window.location.href = data.href_welcome;
       }
       /*-------------------------------*/
-      /*else {
-        // Написать сюда...
-      }*/
+      else {
+        switch (true) {
+          case !!data.success:
+            alert(data.success);
+            location.reload();
+            break;
+          case !!data.error_null_review:
+            alert(data.error_null_review);
+            break;
+          case !!data.error_grade:
+            alert(data.error_grade);
+            break;
+          case !!data.error_:
+            alert(data.error_);
+            break;
+          default:
+            alert('Неизвестная ошибка!');
+        }
+      }
     })
     .catch(error => console.log(error, 'Ошибка со стороны клиента'));
   }

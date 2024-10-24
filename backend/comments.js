@@ -39,9 +39,6 @@ function authenticateToken(req, res, next) {
       return res.json({ message: 'Токен не валидный, либо срок его действия истек!', href_welcome: '../welcome.html' });
     }
     req.user = decoded;
-    /*Логи*/
-    console.log(`req.user = decoded (${decoded})`);
-    /*--------*/
     next();
   });
 }
@@ -73,7 +70,7 @@ app.get('/content', authenticateToken, async function(req, res) { // content.htm
     console.log(`id: ${id_content}`);
     //const [data] = await pool.query(`SELECT object_name, link_to_image, rating, description, users_id, grade, review FROM objects o INNER JOIN reviews r ON o.objects_id = r.objects_id`);
     const [data_object] = await pool.query(`SELECT * FROM objects WHERE objects_id = ?`, [id_content]); // objects
-    const [data_reviews] = await pool.query(`select reviews_id, name, grade, review from reviews r inner join users u on u.id = r.users_id where r.objects_id = ?`, [data_object[0].objects_id]); // reviews
+    const [data_reviews] = await pool.query(`SELECT reviews_id, name, grade, review FROM reviews r INNER JOIN users u on u.id = r.users_id WHERE r.objects_id = ?`, [data_object[0].objects_id]); // reviews
     // const [data_users] подумать, как отправлять отызывы клиентов
     console.log(`data_object: ${data_object[0]}`); // object log 
     console.log(`data_reviews: ${data_reviews[0]}`); // review log
@@ -90,10 +87,37 @@ app.get('/content', authenticateToken, async function(req, res) { // content.htm
 });
 
 app.post('/send_review', authenticateToken, async function (req, res) {
-  const { data_grade, data_review } = req.body;
+  console.log('Обработка /send_review...');
+  const { data_grade, data_review, data_id_content } = req.body;
   const { id } = req.user;
-  await pool.query(`INSERT INTO reviews (users_id, grade, review) VALUES (?, ?, ?)`, [id, data_grade, data_review]);
-  //
+  console.log(`data_grade, data_review: ${data_grade}; ${data_review}`);
+  console.log('id: ' + id);
+  try {
+    if ((data_grade >= 1 && data_grade <= 10) && data_review.trim() !== '') { // если всё корректно
+      await pool.query(`INSERT INTO reviews (objects_id, users_id, grade, review) VALUES (?, ?, ?, ?)`, [data_id_content, id, data_grade, data_review]);
+      res.json({
+        success: 'Отзыв опубликован!'
+      });
+    }
+    else if ((data_grade >= 1 && data_grade <= 10) && data_review.trim() === '') { // если отзыв пустой
+      res.json({
+        error_null_review: 'Введите отзыв!'
+      });
+    }
+    else if ((data_grade >= 1 && data_grade <= 10) == false && data_review.trim() !== '') { // если введенная оценка не соответствует указанному диапазону 
+      res.json({
+        error_grade: 'Диапазон оценки должно варьироваться от 1 до 10!'
+      });
+    }
+    else {
+      res.json({
+        error_: 'Ошибка в одной из проверок!'
+      });
+    }
+  } catch(error) {
+    console.log('Ошибка в маршруте /send_review' + error);
+    throw error;
+  }
 });
 
 async function getUser() {
