@@ -67,10 +67,16 @@ app.get('/content', authenticateToken, async function(req, res) { // content.htm
 
   const flag_content = req.query.flag;
   if (!flag_content) {
+    
     console.log(`id: ${id_content}`);
     //const [data] = await pool.query(`SELECT object_name, link_to_image, rating, description, users_id, grade, review FROM objects o INNER JOIN reviews r ON o.objects_id = r.objects_id`);
     const [data_object] = await pool.query(`SELECT * FROM objects WHERE objects_id = ?`, [id_content]); // objects
-    const [data_reviews] = await pool.query(`SELECT reviews_id, name, grade, review FROM reviews r INNER JOIN users u on u.id = r.users_id WHERE r.objects_id = ?`, [data_object[0].objects_id]); // reviews
+    if (Object.keys(data_object).length === 0) {
+      return res.json({
+        length_is_null: 'Объект не найден!'
+      });
+    }
+    const [data_reviews] = await pool.query(`SELECT reviews_id, name, grade, review, DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_at FROM reviews r INNER JOIN users u on u.id = r.users_id WHERE r.objects_id = ? ORDER BY reviews_id DESC`, [data_object[0].objects_id]); // reviews
     // const [data_users] подумать, как отправлять отызывы клиентов
     console.log(`data_object: ${data_object[0]}`); // object log 
     console.log(`data_reviews: ${data_reviews[0]}`); // review log
@@ -177,10 +183,10 @@ async function addUser() {
       const [data_check] = await pool.query(`select name from users where name = ?`, [login])
 
       if (password === password_ || data_check[0] !== login) {
-        const [data] = await pool.query(`insert into users (name, password, role) values (?, ?, ?)`, [login, password, 'client']);
+        await pool.query(`insert into users (name, password, role) values (?, ?, ?)`, [login, password, 'client']);
         res.json({
           result: true,
-          message: `Аккаунт создан. Авторизуйтесь под новым аккаунтом! ${data[0]}`,
+          message: `Аккаунт создан. Авторизуйтесь под новым аккаунтом!`,
         });
       }
       else {

@@ -12,8 +12,9 @@
     button:hover { background-color: #0056b3; }
     .p_review { border-bottom: 1px solid rgb(78, 78, 78); padding-bottom: 25px; margin-left: 5px; }
     .p_grade { margin-left: 5px; color: rgb(110, 110, 110); }
+    .name_ { width: 10%; }
     #text_review { overflow: auto; height: 75px; width: 90%; max-width: 1200px; margin-left: 15px; }
-    #text_grade { width: 30%; margin-left: 15px; margin-bottom: 10px; }
+    #text_grade { width: 20%; margin-left: 15px; margin-bottom: 10px; }
     .span_grade { margin-left: 10px; }
   </style>
   <title id="title_dynamic"></title>
@@ -31,8 +32,8 @@
   </div>
   <div class="container">
     <h3>Отправить отзыв</h3>
-    <div><input type="number" min="1" max="10" id="text_grade"><span class="span_grade">Оценка объекта (от 1-10)</span></div>
-    <textarea name="largeText" rows="10" cols="50" id="text_review"></textarea>
+    <div><input type="number" min="1" max="10" placeholder="Ввести оценку" id="text_grade"><span class="span_grade">Оценка объекта (от 1-10)</span></div>
+    <textarea rows="10" cols="50" placeholder="Написать отзыв" id="text_review"></textarea>
     <button id="send_review" onclick="send_review()">Отправить</button>
   </div>
   <div class="container">
@@ -78,6 +79,10 @@
     }
     /*-------------------------------*/
     else {
+      if (data.length_is_null) {
+        alert(data.length_is_null);
+        window.stop(); // этого не хватает! Пользователь всё равно может отправить данные и загрузить в БД!
+      }
       /*Логи*/
       console.log(data.reviews);
       /*----*/
@@ -90,7 +95,7 @@
       data.reviews.forEach(function (el, index) {
         const formattedText = el.review.replace(/\n/g, '<br>');
         review_.insertAdjacentHTML('beforeend', `
-          <h4>${el.name}</h4>
+          <div><h4 class="name_">${el.name}</h4><span class="p_grade">${el.created_at}</span></div>
           <p class="p_grade">Оценка: ${el.grade}</p>
           <p class="p_review">${formattedText}</p>
         `);
